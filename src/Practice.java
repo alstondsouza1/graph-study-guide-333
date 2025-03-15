@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,7 +28,38 @@ public class Practice {
    * @return the number of vertices with odd values reachable from the starting vertex
    */
   public static int oddVertices(Vertex<Integer> starting) {
+
+    if (starting == null) {
     return 0;
+    }
+
+    Set<Vertex<Integer>> visited = new HashSet<>();
+    return oddVerticesHelper(starting, visited);
+
+  }
+
+  private static int oddVerticesHelper(Vertex<Integer> current, Set<Vertex<Integer>> visited) {
+
+    if (current == null) {
+      return 0;
+    }
+
+    if (visited.contains(current)) {
+      return 0;
+    }
+
+    visited.add(current);
+
+    int count = 0;
+    if (current.data % 2 != 0) {
+      count++;
+    }
+
+    for (Vertex<Integer> neighbor : current.neighbors) {
+      count += oddVerticesHelper(neighbor, visited);
+    }
+
+    return count;
   }
 
   /**
@@ -48,7 +82,33 @@ public class Practice {
    */
   public static List<Integer> sortedReachable(Vertex<Integer> starting) {
     // Unimplemented: perform a depth-first search and sort the collected values.
-    return null;
+
+    List<Integer> values = new ArrayList<>();
+
+    Set<Vertex<Integer>> visited = new HashSet<>();
+
+    sortedReachableHelper(starting, visited, values);
+
+    Collections.sort(values);
+
+    return values;
+  }
+
+  private static void sortedReachableHelper(Vertex<Integer> current, Set<Vertex<Integer>> visited, List<Integer> values) {
+    if (current == null) {
+      return;
+    }
+
+    if (visited.contains(current)) {
+      return;
+    }
+
+    visited.add(current);
+    values.add(current.data);
+
+    for (Vertex<Integer> neighbor : current.neighbors) {
+      sortedReachableHelper(neighbor, visited, values);
+    }
   }
 
   /**
@@ -62,7 +122,27 @@ public class Practice {
    * @return a sorted list of all reachable vertex values
    */
   public static List<Integer> sortedReachable(Map<Integer, Set<Integer>> graph, int starting) {
-    return null;
+
+    List<Integer> values = new ArrayList<>();
+    Set<Integer> visited = new HashSet<>();
+
+    sortedReachableHelper(graph, starting, visited, values);
+
+    Collections.sort(values);
+
+    return values;
+  }
+
+  private static void sortedReachableHelper(Map<Integer, Set<Integer>> graph, int current, Set<Integer> visited, List<Integer> values) {
+
+    if (visited.contains(current)) return;
+
+    visited.add(current);
+    values.add(current);
+
+    for (Integer neighbor : graph.get(current)) {
+      sortedReachableHelper(graph, neighbor, visited, values);
+    }
   }
 
   /**
@@ -96,7 +176,33 @@ public class Practice {
    * @return whether there exists a valid positive path from starting to ending
    */
   public static boolean positivePathExists(Map<Integer, Set<Integer>> graph, int starting, int ending) {
+
+    if (starting <= 0 || ending <=0 || !graph.containsKey(starting) || !graph.containsKey(ending)) {
     return false;
+    }
+
+    Set<Integer> visited = new HashSet<>();
+    return positivePathExistsHelper(graph, starting, ending, visited);
+  }
+
+  private static boolean positivePathExistsHelper(Map<Integer, Set<Integer>> graph, int current, int ending, Set<Integer> visited) {
+    if (current == ending) {
+      return true;
+    }
+
+    if (visited.contains(current)) {
+      return false;
+    }
+
+    visited.add(current);
+
+    for (int neighbor : graph.get(current)) {
+      if (neighbor > 0 && positivePathExistsHelper(graph, neighbor, ending, visited)) {
+        return true;
+      }
+    }
+    return false;
+
   }
 
   /**
@@ -109,6 +215,37 @@ public class Practice {
    * @return true if a person in the extended network works at the specified company, false otherwise
    */
   public static boolean hasExtendedConnectionAtCompany(Professional person, String companyName) {
+
+    if (person == null) {
     return false;
+    }
+
+    Set<Professional> visisted = new HashSet<>();
+
+    return hasExtendedConnectionAtCompanyHelper(person, companyName, visisted);
+
+  }
+
+  private static boolean hasExtendedConnectionAtCompanyHelper(Professional person, String companyName, Set<Professional> visited) {
+
+    if (visited.contains(person)) {
+      return false;
+    }
+
+    visited.add(person);
+
+    if (person.getCompany().equals(companyName)) {
+      return true;
+    }
+
+    for (var connection : person.getConnections()) {
+      if (hasExtendedConnectionAtCompanyHelper(connection, companyName, visited)) {
+        return true;
+      }
+    }
+
+    return false;
+
+    
   }
 }
