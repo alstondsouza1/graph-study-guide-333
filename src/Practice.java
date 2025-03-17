@@ -123,6 +123,8 @@ public class Practice {
    */
   public static List<Integer> sortedReachable(Map<Integer, Set<Integer>> graph, int starting) {
 
+    if (!graph.containsKey(starting)) return new ArrayList<>();
+
     List<Integer> values = new ArrayList<>();
     Set<Integer> visited = new HashSet<>();
 
@@ -160,8 +162,32 @@ public class Practice {
    * @return true if there is a two-way connection between v1 and v2, false otherwise
    */
   public static <T> boolean twoWay(Vertex<T> v1, Vertex<T> v2) {
-    return false;
+
+    if (v1 == null || v2 == null) return false;
+
+    Set<Vertex<T>> visited = new HashSet<>();
+    
+    boolean v1ToV2 = twoWayHelper(v1, v2, visited);
+    visited.clear();
+    boolean v2ToV1 = twoWayHelper(v2, v1, visited);
+
+    return v1ToV2 && v2ToV1;
   }
+
+  private static <T> boolean twoWayHelper(Vertex<T> current, Vertex<T> target, Set<Vertex<T>> visited) {
+    if (current == target) return true; 
+    if (visited.contains(current)) return false;
+
+    visited.add(current); 
+
+    for (Vertex<T> neighbor : current.neighbors) {
+      if (twoWayHelper(neighbor, target, visited)) {
+          return true;
+      }
+    }
+
+    return false;
+  } 
 
   /**
    * Returns whether there exists a path from the starting to ending vertex that includes only positive values.
